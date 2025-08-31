@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Poulex Firmware Release Playbook (Company‑wise)</title>
+  <!-- Bootstrap 5.3.6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root{
+      --hero-bg: radial-gradient(80rem 80rem at -10% -10%, #ffffff 35%, transparent 36%),
+                 radial-gradient(80rem 80rem at 110% 110%, #ffffff 35%, transparent 36%),
+                 linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+    }
+    body{background:#f6f9fc}
+    .hero{
+      background:var(--hero-bg);
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    .brand-badge{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.35rem .7rem;border-radius:999px;
+      background:#0d6efd1a;color:#0d6efd;font-weight:600;font-size:.9rem
+    }
+    .card{
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 2px 18px rgba(0,0,0,.03);
+      border-radius:1rem;
+    }
+    pre{position:relative;background:#0b1220;color:#d6e1ff;border-radius:.75rem;padding:1rem;overflow:auto}
+    .copy-btn{position:absolute;top:.5rem;right:.5rem}
+    .toc{position:sticky;top:1rem}
+    .checklist li{margin:.4rem 0}
+    .kicker{letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#6c757d;font-size:.8rem}
+    .step-badge{width:28px;height:28px;display:inline-grid;place-items:center;border-radius:50%;background:#0d6efd;color:#fff;font-weight:700;margin-right:.5rem}
+    .section-title{scroll-margin-top:100px}
+    .feature{display:flex;gap:12px}
+    .feature i{font-size:1.25rem;}
+    .footer{color:#6c757d}
+    /* Dark tweaks */
+    [data-bs-theme="dark"] body{background:#0b0f15}
+    [data-bs-theme="dark"] .hero{background:linear-gradient(180deg,#0b0f15 0%, #0f1622 100%)}
+  </style>
+</head>
+<body>
+  <!-- Hero -->
+  <header class="hero py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3">
+        <div>
+          <div class="brand-badge"><i class="bi bi-cpu"></i> Poulex • Firmware</div>
+          <h1 class="display-5 fw-bold mt-3">Firmware Release Playbook (Company‑wise)</h1>
+          <p class="lead text-secondary">A simple, reliable Git flow to manage company‑specific firmware lines with tagged releases.</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-primary" href="#quickstart"><i class="bi bi-rocket-takeoff"></i> Quick Start</a>
+            <a class="btn btn-outline-secondary" href="#commands"><i class="bi bi-terminal"></i> Commands</a>
+          </div>
+        </div>
+        <div class="text-end">
+          <div class="kicker mb-2">Theme</div>
+          <div class="btn-group" role="group" aria-label="Theme switcher">
+            <button class="btn btn-outline-secondary" id="lightBtn"><i class="bi bi-sun"></i></button>
+            <button class="btn btn-outline-secondary" id="darkBtn"><i class="bi bi-moon"></i></button>
+            <button class="btn btn-outline-secondary" id="autoBtn"><i class="bi bi-circle-half"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-4">
+    <div class="row g-4">
+      <!-- TOC -->
+      <aside class="col-lg-3">
+        <div class="card p-3 toc">
+          <div class="kicker">On this page</div>
+          <nav id="toc" class="nav flex-column small">
+            <a class="nav-link" href="#model">1. Model</a>
+            <a class="nav-link" href="#naming">2. Naming</a>
+            <a class="nav-link" href="#quickstart">3. Quick Start</a>
+            <a class="nav-link" href="#develop">4. Develop</a>
+            <a class="nav-link" href="#release">5. Release</a>
+            <a class="nav-link" href="#hotfix">6. Hotfix</a>
+            <a class="nav-link" href="#sync">7. Keep in Sync</a>
+            <a class="nav-link" href="#commands">8. Useful Commands</a>
+            <a class="nav-link" href="#template">9. Tag Template</a>
+            <a class="nav-link" href="#checklist">10. Safety Checklist</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <section class="col-lg-9">
+
+        <div class="card p-4 mb-4">
+          <h2 id="model" class="section-title h4 mb-3"><span class="step-badge">1</span>Model at a glance</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="feature">
+                <i class="bi bi-git"></i>
+                <div>
+                  <strong>main</strong>
+                  <div class="text-secondary">Generic, stable firmware line.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="feature">
+                <i class="bi bi-diagram-3"></i>
+                <div>
+                  <strong>company/&lt;Name&gt;</strong>
+                  <div class="text-secondary">One long‑lived branch per customer.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="feature">
+                <i class="bi bi-tags"></i>
+                <div>
+                  <strong>Annotated tags</strong>
+                  <div class="text-secondary">Releases tagged on the company branch.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="feature">
+                <i class="bi bi-archive"></i>
+                <div>
+                  <strong>Release notes</strong>
+                  <div class="text-secondary">Keep short notes in tag messages.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 mb-4">
+          <h2 id="naming" class="section-title h4 mb-3"><span class="step-badge">2</span>Naming rules</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="p-3 bg-body-tertiary rounded">
+                <div class="kicker mb-1">Branches</div>
+                <code>company/GreenFarm</code><br>
+                <code>company/PoultryPlus</code>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-body-tertiary rounded">
+                <div class="kicker mb-1">Tags (SemVer)</div>
+                <code>GreenFarm-fw-v1.3.0</code><br>
+                <code>PoultryPlus-fw-v0.9.2</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 mb-4" id="quickstart">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">3</span>Quick Start (one‑time per company)</h2>
+          <p class="text-secondary mb-2">Create a branch for a company:</p>
+          <pre><button class="btn btn-sm btn-light copy-btn" data-copy="git checkout main\ngit pull --ff-only\ngit checkout -b company/GreenFarm\ngit push -u origin company/GreenFarm"><i class="bi bi-clipboard"></i></button><code>git checkout main
+git pull --ff-only
+git checkout -b company/GreenFarm
+git push -u origin company/GreenFarm</code></pre>
+        </div>
+
+        <div class="card p-4 mb-4" id="develop">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">4</span>Develop (multiple commits per release)</h2>
+          <pre><button class="btn btn-sm btn-light copy-btn" data-copy="git checkout company/GreenFarm\n# edit code\ngit add .\ngit commit -m \"feat: add PWM fan curve for GreenFarm houses\"\ngit commit -m \"fix: handle RS485 sensor dropout\"\ngit push"><i class="bi bi-clipboard"></i></button><code>git checkout company/GreenFarm
+# edit code
+git add .
+git commit -m "feat: add PWM fan curve for GreenFarm houses"
+git commit -m "fix: handle RS485 sensor dropout"
+git push</code></pre>
+          <ul class="text-secondary small mb-0">
+            <li>Prefer small, focused commits.</li>
+            <li>If your code stores version numbers, bump just before tagging.</li>
+          </ul>
+        </div>
+
+        <div class="card p-4 mb-4" id="release">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">5</span>Cut a Release (tag on company branch)</h2>
+          <ol class="mb-3">
+            <li>Ensure tests/builds pass.</li>
+            <li>(Optional) Bump in‑code version + commit.</li>
+            <li>Create an <strong>annotated tag</strong> with notes.</li>
+            <li>Push branch and tags.</li>
+          </ol>
+          <pre><button class="btn btn-sm btn-light copy-btn" data-copy="git commit -m \"chore(release): GreenFarm v1.3.0\"\ngit tag -a GreenFarm-fw-v1.3.0 -m \"GreenFarm v1.3.0\n- PWM fan curve\n- RS485 dropout fix\n- OTA stability improvements\"\ngit push origin company/GreenFarm --tags"><i class="bi bi-clipboard"></i></button><code>git commit -m "chore(release): GreenFarm v1.3.0"
+git tag -a GreenFarm-fw-v1.3.0 -m "GreenFarm v1.3.0
+- PWM fan curve
+- RS485 dropout fix
+- OTA stability improvements"
+git push origin company/GreenFarm --tags</code></pre>
+          <div class="alert alert-info mb-0"><i class="bi bi-info-circle"></i> Attach your built <code>.bin</code> to the Git hosting <strong>Release</strong> pointing to this tag.</div>
+        </div>
+
+        <div class="card p-4 mb-4" id="hotfix">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">6</span>Hotfix flow</h2>
+          <pre><button class="btn btn-sm btn-light copy-btn" data-copy="git checkout company/GreenFarm\ngit pull\ngit checkout -b hotfix/GreenFarm-null-sensor\n# fix\ngit commit -m \"fix: guard null sensor payload\"\ngit push -u origin hotfix/GreenFarm-null-sensor\n\ngit checkout company/GreenFarm\ngit merge --ff-only hotfix/GreenFarm-null-sensor\ngit push\n\ngit tag -a GreenFarm-fw-v1.3.1 -m \"Hotfix: null sensor payload\"\ngit push origin --tags\n\ngit branch -d hotfix/GreenFarm-null-sensor\ngit push origin --delete hotfix/GreenFarm-null-sensor"><i class="bi bi-clipboard"></i></button><code>git checkout company/GreenFarm
+git pull
+git checkout -b hotfix/GreenFarm-null-sensor
+# fix
+git commit -m "fix: guard null sensor payload"
+git push -u origin hotfix/GreenFarm-null-sensor
+
+git checkout company/GreenFarm
+git merge --ff-only hotfix/GreenFarm-null-sensor
+git push
+
+git tag -a GreenFarm-fw-v1.3.1 -m "Hotfix: null sensor payload"
+git push origin --tags
+
+git branch -d hotfix/GreenFarm-null-sensor
+git push origin --delete hotfix/GreenFarm-null-sensor</code></pre>
+        </div>
+
+        <div class="card p-4 mb-4" id="sync">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">7</span>Keep company branch in sync with <code>main</code></h2>
+          <pre><button class="btn btn-sm btn-light copy-btn" data-copy="git checkout company/GreenFarm\ngit fetch origin\ngit rebase origin/main\ngit push --force-with-lease"><i class="bi bi-clipboard"></i></button><code>git checkout company/GreenFarm
+git fetch origin
+git rebase origin/main
+git push --force-with-lease</code></pre>
+          <div class="text-secondary small">Rebasing keeps history linear; use <code>--force-with-lease</code> to stay safe.</div>
+        </div>
+
+        <div class="card p-4 mb-4" id="commands">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">8</span>Useful commands</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="p-3 bg-body-tertiary rounded h-100">
+                <div class="fw-semibold mb-2"><i class="bi bi-tags"></i> List releases</div>
+                <pre class="mb-0"><button class="btn btn-sm btn-light copy-btn" data-copy="git tag --list \"GreenFarm-fw-v*\""><i class="bi bi-clipboard"></i></button><code>git tag --list "GreenFarm-fw-v*"</code></pre>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-body-tertiary rounded h-100">
+                <div class="fw-semibold mb-2"><i class="bi bi-card-text"></i> Show release notes</div>
+                <pre class="mb-0"><button class="btn btn-sm btn-light copy-btn" data-copy="git show GreenFarm-fw-v1.3.0"><i class="bi bi-clipboard"></i></button><code>git show GreenFarm-fw-v1.3.0</code></pre>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-body-tertiary rounded h-100">
+                <div class="fw-semibold mb-2"><i class="bi bi-arrow-left-right"></i> Diff two releases</div>
+                <pre class="mb-0"><button class="btn btn-sm btn-light copy-btn" data-copy="git diff GreenFarm-fw-v1.3.0..GreenFarm-fw-v1.3.1"><i class="bi bi-clipboard"></i></button><code>git diff GreenFarm-fw-v1.3.0..GreenFarm-fw-v1.3.1</code></pre>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-body-tertiary rounded h-100">
+                <div class="fw-semibold mb-2"><i class="bi bi-clock-history"></i> Commits since last tag</div>
+                <pre class="mb-0"><button class="btn btn-sm btn-light copy-btn" data-copy="git describe --tags --abbrev=0\n# suppose it printed GreenFarm-fw-v1.3.0\ngit log GreenFarm-fw-v1.3.0..HEAD --oneline"><i class="bi bi-clipboard"></i></button><code>git describe --tags --abbrev=0
+# suppose it printed GreenFarm-fw-v1.3.0
+git log GreenFarm-fw-v1.3.0..HEAD --oneline</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 mb-4" id="template">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">9</span>Tag message template</h2>
+<pre><button class="btn btn-sm btn-light copy-btn" data-copy="<CompanyName> v<version>\n\nHighlights\n- <bullet>\n- <bullet>\n\nNotes\n- Required config/env changes: <none|list>\n- OTA compatibility: <e.g., min bootloader v0.5>\n- Rollback plan: <revert to <tag> if needed>"><i class="bi bi-clipboard"></i></button><code>&lt;CompanyName&gt; v&lt;version&gt;
+
+Highlights
+- &lt;bullet&gt;
+- &lt;bullet&gt;
+
+Notes
+- Required config/env changes: &lt;none|list&gt;
+- OTA compatibility: &lt;e.g., min bootloader v0.5&gt;
+- Rollback plan: &lt;revert to &lt;tag&gt; if needed&gt;</code></pre>
+        </div>
+
+        <div class="card p-4 mb-5" id="checklist">
+          <h2 class="section-title h4 mb-3"><span class="step-badge">10</span>Safety checklist</h2>
+          <ul class="checklist">
+            <li>✅ Work per customer on <code>company/&lt;Name&gt;</code>.</li>
+            <li>✅ Use <strong>annotated</strong> tags for every release.</li>
+            <li>✅ Keep commits small and messages clear.</li>
+            <li>✅ Periodically rebase/merge from <code>main</code>.</li>
+            <li>🚫 Don’t develop customer code on <code>main</code>.</li>
+            <li>🚫 Don’t use lightweight tags for releases.</li>
+          </ul>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <footer class="py-4 border-top bg-body position-relative">
+    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 footer">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-cpu"></i>
+        <span><strong>Poulex</strong> • Firmware Playbook</span>
+      </div>
+      <div class="small">© <span id="year"></span> Poulex. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Theme toggles
+    const setTheme = (mode) => {
+      const root = document.documentElement;
+      root.setAttribute('data-bs-theme', mode);
+      localStorage.setItem('theme', mode);
+    }
+    const stored = localStorage.getItem('theme');
+    if(stored){ setTheme(stored); }
+    document.getElementById('lightBtn').addEventListener('click', ()=> setTheme('light'));
+    document.getElementById('darkBtn').addEventListener('click', ()=> setTheme('dark'));
+    document.getElementById('autoBtn').addEventListener('click', ()=> setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'));
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const text = btn.getAttribute('data-copy');
+        try{ await navigator.clipboard.writeText(text); btn.innerHTML='<i class="bi bi-check-lg"></i>'; setTimeout(()=>btn.innerHTML='<i class="bi bi-clipboard"></i>',1200);}catch(e){ console.error(e); }
+      });
+    });
+
+    // Scroll to anchors smoothly
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        const id = a.getAttribute('href');
+        const el = document.querySelector(id);
+        if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); }
+      })
+    })
+  </script>
+</body>
+</html>
